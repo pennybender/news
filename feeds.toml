@@ -138,13 +138,14 @@ weight = 1.1
 long_read = true
 
 # Free-market / Austrian
-[[sources]]
-name = "Mises Institute"
-section = "money"
-kind = "rss"
-url = "https://mises.org/feed"
-weight = 0.8
-max_items = 15
+# Mises Institute blocks GitHub's servers (403), so it's off. Uncomment if that changes.
+# [[sources]]
+# name = "Mises Institute"
+# section = "money"
+# kind = "rss"
+# url = "https://mises.org/feed"
+# weight = 0.8
+# max_items = 15
 
 [[sources]]
 name = "AIER"

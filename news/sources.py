@@ -11,6 +11,11 @@ import feedparser
 from bs4 import BeautifulSoup
 
 USER_AGENT = "Mozilla/5.0 (personal RSS reader)"
+HEADERS = {
+    "User-Agent": USER_AGENT,
+    # some sites (New Scientist) refuse requests that don't say they accept feeds
+    "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, */*;q=0.8",
+}
 
 
 def _clean(html, limit=320):

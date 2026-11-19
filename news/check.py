@@ -2,12 +2,12 @@
 import httpx
 
 from .config import load_config
-from .sources import USER_AGENT, fetch_source
+from .sources import HEADERS, fetch_source
 
 
 def main():
     cfg = load_config()
-    with httpx.Client(headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True) as client:
+    with httpx.Client(headers=HEADERS, timeout=20, follow_redirects=True) as client:
         for src in cfg["sources"]:
             try:
                 stories = fetch_source(src, client)

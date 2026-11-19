@@ -18,7 +18,7 @@ import httpx
 
 from .config import ROOT, load_config
 from .ranking import assign_clusters
-from .sources import USER_AGENT, fetch_source
+from .sources import HEADERS, fetch_source
 
 
 def now_iso():
@@ -30,7 +30,7 @@ def story_id(url):
 
 
 def _client():
-    return httpx.Client(headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True)
+    return httpx.Client(headers=HEADERS, timeout=20, follow_redirects=True)
 
 
 def _pull(src):
