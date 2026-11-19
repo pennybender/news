@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>News</title>
+  <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151514" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="News">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <main id="view" aria-live="polite"></main>
+    <nav class="tabbar" aria-label="Views">
+      <button data-view="today" class="active"><span class="ti">☼</span>Today</button>
+      <button data-view="river"><span class="ti">≋</span>River</button>
+      <button data-view="long"><span class="ti">❦</span>Long reads</button>
+      <button data-view="saved"><span class="ti">✦</span>Saved</button>
+    </nav>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
