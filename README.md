@@ -47,15 +47,14 @@ To see the app with sample stories: `python -m news.demo --out site && python -m
 
 ### AFR
 
-AFR has no RSS feed, so the `afr` adapter scans the section pages under `pages` for article links. Stories open on
-afr.com, where you're signed in. If AFR blocks GitHub's servers or redesigns its site, it will appear under
-"Didn't update this time" and the rest of the paper carries on. The link pattern is `AFR_URL` in `news/sources.py`.
+AFR has no RSS feed. `news/sources.py` includes an `afr` adapter that scans AFR section pages, but it's switched off.
+To try it, add a source with `kind = "afr"` and `pages = ["https://www.afr.com/latest"]`.
 
 ## How it works
 
 ```
 feeds.toml                    sections + sources
-news/sources.py               adapters: rss, afr   ← add new source kinds here
+news/sources.py               adapters: rss (and an unused afr scraper)   ← add new source kinds here
 news/ranking.py               headline-similarity dedupe
 news/build.py                 fetch → merge with the live site's stories → dedupe → prune → write site/
 web/                          the app (HTML/CSS/JS, no build step) + offline support

@@ -1,7 +1,7 @@
 # News — sources and sections.
 # Edit freely (you can do it on github.com). The next scheduled update picks up changes.
 #
-# kind:      "rss" (RSS/Atom feed) or "afr" (scrapes AFR section pages — AFR has no feed)
+# kind:      "rss" (RSS/Atom feed). There is also an "afr" scraper in news/sources.py, unused for now.
 # weight:    how much this source counts when picking the front page (1.0 = normal)
 # long_read: true sends its stories to the Long reads tab as well
 # include:   optional keywords; only stories mentioning one of them are kept (good for arXiv)
@@ -99,15 +99,6 @@ include = ["language model", "agent", "reasoning"]
 
 # ---------- Money ----------
 [[sources]]
-name = "AFR"
-section = "money"
-kind = "afr"
-# Section pages to scan for headlines. Stories open on afr.com, where you're logged in.
-pages = ["https://www.afr.com/latest", "https://www.afr.com/markets", "https://www.afr.com/policy/economy"]
-weight = 1.3
-paywalled = true
-
-[[sources]]
 name = "Marginal Revolution"
 section = "money"
 kind = "rss"
@@ -120,6 +111,63 @@ section = "money"
 kind = "rss"
 url = "https://www.rba.gov.au/rss/rss-cb-media-releases.xml"
 weight = 1.1
+
+# Modern economics
+[[sources]]
+name = "The Economist"
+section = "money"
+kind = "rss"
+url = "https://www.economist.com/finance-and-economics/rss.xml"
+weight = 1.2
+paywalled = true
+
+[[sources]]
+name = "Noahpinion"
+section = "money"
+kind = "rss"
+url = "https://www.noahpinion.blog/feed"
+weight = 1.0
+long_read = true
+
+[[sources]]
+name = "Apricitas"
+section = "money"
+kind = "rss"
+url = "https://www.apricitas.io/feed"
+weight = 1.1
+long_read = true
+
+# Free-market / Austrian
+[[sources]]
+name = "Mises Institute"
+section = "money"
+kind = "rss"
+url = "https://mises.org/feed"
+weight = 0.8
+max_items = 15
+
+[[sources]]
+name = "AIER"
+section = "money"
+kind = "rss"
+url = "https://www.aier.org/feed/"
+weight = 0.8
+max_items = 15
+
+[[sources]]
+name = "Cafe Hayek"
+section = "money"
+kind = "rss"
+url = "https://cafehayek.com/feed"
+weight = 0.7
+
+[[sources]]
+name = "Econlib"
+section = "money"
+kind = "rss"
+url = "https://www.econlib.org/feed/"
+weight = 0.8
+long_read = true
 
 # ---------- Letters & Ideas ----------
 [[sources]]
