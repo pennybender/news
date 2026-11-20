@@ -64,10 +64,10 @@ def merge(cfg, previous, results, full_text=True):
         added = 0
         for s in stories:
             sid = story_id(s["url"])
-            if sid in by_id:
-                continue
             s = dict(s)
             contents[sid] = s.pop("content", "")
+            if sid in by_id:
+                continue
             a = {"id": sid, "source": src["name"], "section": src["section"], "long_read": src["long_read"],
                  "paywalled": src["paywalled"], "has_text": False, "fetched": now_iso(), **s}
             by_id[sid] = a
@@ -81,8 +81,15 @@ def merge(cfg, previous, results, full_text=True):
     articles = [a for a in by_id.values() if a["published"] >= cutoff and a["source"] in current]
     new = [a for a in new if a["published"] >= cutoff]
     assign_clusters(articles, new, s["dedupe_threshold"])
-    texts = add_full_text(new, contents, client) if full_text else {}
+    texts, text_stats = {}, {}
+    if full_text:
+        # new stories, plus older ones that never got text under earlier rules (each gets one more try)
+        new_ids = {a["id"] for a in new}
+        candidates = new + [a for a in articles if a["id"] not in new_ids and not a.get("has_text")
+                            and not a.get("text_tried")]
+        texts, text_stats = add_full_text(candidates, contents, client)
     articles.sort(key=lambda a: a["published"], reverse=True)
+    merge.text_stats = text_stats
     return articles, status, texts
 
 
@@ -148,6 +155,18 @@ def main(argv=None):
             print(f"  ✗ {x['source']:<{width}}  {x['error']}")
     ok = sum(x["ok"] for x in status)
     with_text = sum(1 for a in articles if a.get("has_text"))
+    stats = getattr(merge, "text_stats", {})
+    if stats:
+        print("\nReader text this run (feed = from the feed, page = extracted, short/failed = opens the website):")
+        for name, st in sorted(stats.items()):
+            print(f"  {name:<{width}}  " + ", ".join(f"{k} {v}" for k, v in st.items() if v))
+    readable = {}
+    for a in articles:
+        r = readable.setdefault(a["source"], [0, 0])
+        r[0] += bool(a.get("has_text")); r[1] += 1
+    print("\nReadable in the app, by source:")
+    for name, (n, total) in sorted(readable.items()):
+        print(f"  {name:<{width}}  {n}/{total}")
     print(f"\n{ok}/{len(status)} sources OK · {len(articles)} stories ({len(previous)} carried over) · "
           f"{with_text} readable in the app ({len(texts)} new)")
     return 0 if ok or previous else 1  # only fail the run if nothing at all worked
