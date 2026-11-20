@@ -94,8 +94,13 @@ def merge(cfg, previous, results, full_text=True):
     if full_text:
         # new stories, plus older ones that never got text under earlier rules (each gets one more try)
         new_ids = {a["id"] for a in new}
-        candidates = new + [a for a in articles if a["id"] not in new_ids and not a.get("has_text")
-                            and not a.get("text_tried")]
+        page_sources = {src["name"] for src in cfg["sources"] if src.get("fetch_page")}
+        candidates = new + [a for a in articles if a["id"] not in new_ids and (
+            (not a.get("has_text") and not a.get("text_tried"))
+            or (a["source"] in page_sources and not a.get("page_text")))]
+        for a in candidates:
+            if a["source"] in page_sources and not a.get("page_text"):
+                a["_fetch_page"] = True
         texts, text_stats = add_full_text(candidates, contents, client)
     articles.sort(key=lambda a: a["published"], reverse=True)
     merge.text_stats = text_stats

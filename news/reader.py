@@ -59,6 +59,13 @@ def extract_page(url, client):
     return Document(resp.text).summary(html_partial=True)
 
 
+WP_FOOTER = re.compile(r"<p>\s*The post .{0,400}? appeared first on .{0,200}?</p>\s*$", re.I | re.S)
+
+
+def _strip_footer(html):
+    return WP_FOOTER.sub("", (html or "").strip())
+
+
 def _is_teaser(html):
     text = lxml.html.fromstring(f"<div>{html}</div>").text_content().strip() if html else ""
     return not text or bool(TEASER.search(text[-120:]))
@@ -76,8 +83,10 @@ def add_full_text(candidates, contents, client_factory):
     for a in candidates:
         if a.get("paywalled"):
             continue
-        feed_html = contents.get(a["id"], "")
-        if word_count(feed_html) >= FEED_MIN_WORDS and not _is_teaser(feed_html):
+        feed_html = _strip_footer(contents.get(a["id"], ""))
+        if a.get("_fetch_page"):
+            to_fetch.append(a)
+        elif word_count(feed_html) >= FEED_MIN_WORDS and not _is_teaser(feed_html):
             out[a["id"]] = clean(feed_html, a["url"])
             note(a, "feed")
         else:
@@ -108,4 +117,8 @@ def add_full_text(candidates, contents, client_factory):
         by_id[aid]["has_text"] = True
         by_id[aid]["text_tried"] = True
         by_id[aid]["words"] = word_count(html)
+        if by_id[aid].get("_fetch_page"):
+            by_id[aid]["page_text"] = True
+    for a in candidates:
+        a.pop("_fetch_page", None)
     return out, stats

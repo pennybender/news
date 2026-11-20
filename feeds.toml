@@ -7,6 +7,7 @@
 # include:   optional keywords; only stories mentioning one of them are kept (good for arXiv)
 # exclude:   optional; drop stories whose headline contains any of these
 # url_env:   optional; read the feed address from a GitHub secret (for private feeds)
+# fetch_page: optional; always read the full article from its web page (feeds that only send excerpts)
 # keep_days: optional; keep this source's stories longer than the default (good for rare posters)
 
 [settings]
@@ -194,6 +195,7 @@ kind = "rss"
 url = "https://strawman.com/blog/feed/"
 weight = 1.3
 keep_days = 30
+fetch_page = true   # the feed only has excerpts
 
 # Free-market / Austrian
 # Mises Institute blocks GitHub's servers (403), so it's off. Uncomment if that changes.
