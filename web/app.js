@@ -143,7 +143,7 @@
     let html = `<header class="masthead">
         <div class="dateline"><span>${esc(date)}</span>
           <button class="refresh" id="refresh">${DEMO ? "Sample" : `Updated ${ago(data.generated)} ago`}</button></div>
-        <h1>News</h1>
+        <h1>The Perry Post</h1>
         <div class="tagline">${data.sections.map((s) => esc(s.name.split(" ")[0])).join(" · ")}</div>
         ${DEMO ? `<div class="demo-banner">Preview with made-up sample headlines — the real app fills this from your feeds.</div>` : ""}
       </header>`;
