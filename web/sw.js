@@ -1,5 +1,5 @@
 // Offline support: the app shell from cache; the news data network-first, falling back to the last copy.
-const CACHE = "news-v5";
+const CACHE = "news-v6";
 const SHELL = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
