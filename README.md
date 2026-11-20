@@ -22,13 +22,13 @@ What you've read and saved is kept on your phone.
 
 ## Views
 
-- **Today**: the 7 best unread stories (at most 2 per section), then each section's top stories.
+- **Top stories**: the 7 best unread stories from the last two days (at most 2 per section), then each section's top stories.
 - **Latest**: everything from the last 7 days, newest first, with section filters.
 - **Long reads**: essays from long-read sources (Quillette, Aeon, Quanta…) or anything over ~2,000 words.
 - **Saved**: anything you've starred. Saves stay on the phone even after the story drops out of the feed.
 
 Opening a story marks it read, along with every other source's copy of the same story. Read stories leave the
-front page. If any source failed on the last update, it's listed at the bottom of Today.
+front page. If any source failed on the last update, it's listed at the bottom of Top stories. It refreshes through the day as new stories arrive.
 
 ## Changing sources
 

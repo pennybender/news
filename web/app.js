@@ -161,7 +161,7 @@
         ${items.map((a) => story(a, "compact", { summary: false })).join("")}
       </section>`;
     }
-    html += `<div class="endmark">That's today's paper</div>`;
+    html += `<div class="endmark">You're up to date</div>`;
     if (failed.length && !DEMO) html += `<p class="status-note">Didn't update this time: ${esc(failed.join(", "))}</p>`;
     $view.innerHTML = html;
   }
