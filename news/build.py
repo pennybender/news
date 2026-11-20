@@ -22,7 +22,7 @@ import lxml.html
 from .config import ROOT, load_config
 from .ranking import assign_clusters
 from .reader import add_full_text
-from .sources import HEADERS, fetch_source
+from .sources import HEADERS, apply_filters, fetch_source
 
 
 def now_iso():
@@ -84,6 +84,10 @@ def merge(cfg, previous, results, full_text=True):
                for src in cfg["sources"]}
     keep = lambda a: a["source"] in cutoffs and a["published"] >= cutoffs[a["source"]]
     articles = [a for a in by_id.values() if keep(a)]
+    srcs = {src["name"]: src for src in cfg["sources"]}
+    allowed = {a["id"] for name, src in srcs.items()
+               for a in apply_filters(src, [x for x in articles if x["source"] == name])}
+    articles = [a for a in articles if a["id"] in allowed]
     new = [a for a in new if keep(a)]
     assign_clusters(articles, new, s["dedupe_threshold"])
     texts, text_stats = {}, {}

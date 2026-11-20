@@ -127,8 +127,12 @@ ADAPTERS = {"rss": fetch_rss, "afr": fetch_afr}
 
 
 def fetch_source(src, client):
-    stories = ADAPTERS[src["kind"]](src, client)
-    text = lambda s: (s["title"] + " " + s["summary"]).lower()
+    return apply_filters(src, ADAPTERS[src["kind"]](src, client))
+
+
+def apply_filters(src, stories):
+    """include / exclude keywords from feeds.toml (also re-applied to stored stories when they change)."""
+    text = lambda s: (s["title"] + " " + s.get("summary", "")).lower()
     words = [w.lower() for w in src.get("include", [])]
     if words:
         stories = [s for s in stories if any(w in text(s) for w in words)]
