@@ -128,7 +128,11 @@ ADAPTERS = {"rss": fetch_rss, "afr": fetch_afr}
 
 def fetch_source(src, client):
     stories = ADAPTERS[src["kind"]](src, client)
+    text = lambda s: (s["title"] + " " + s["summary"]).lower()
     words = [w.lower() for w in src.get("include", [])]
     if words:
-        stories = [s for s in stories if any(w in (s["title"] + " " + s["summary"]).lower() for w in words)]
+        stories = [s for s in stories if any(w in text(s) for w in words)]
+    skip = [w.lower() for w in src.get("exclude", [])]
+    if skip:
+        stories = [s for s in stories if not any(w in s["title"].lower() for w in skip)]
     return stories

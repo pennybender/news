@@ -46,6 +46,8 @@ jobs:
           restore-keys: news-state-
 
       - name: Fetch feeds and build
+        env:
+          QUILLETTE_EMAIL_FEED: ${{ secrets.QUILLETTE_EMAIL_FEED }}
         run: python -m news.build --out site --state state
 
       - name: Save stories for next run

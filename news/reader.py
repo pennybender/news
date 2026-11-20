@@ -36,6 +36,9 @@ def clean(html, base_url):
             src = img.get("data-src") or img.get("data-lazy-src")
             if src:
                 img.set("src", src)
+        for img in list(doc.iter("img")):  # drop email tracking pixels and spacers
+            if any((img.get(k) or "").strip() in {"0", "1", "2", "1px", "0px"} for k in ("width", "height")):
+                img.drop_tree()
         doc.make_links_absolute(base_url, resolve_base_href=False)
         for el in doc.iter("h1"):
             el.tag = "h2"

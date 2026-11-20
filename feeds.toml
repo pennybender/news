@@ -5,6 +5,8 @@
 # weight:    how much this source counts when picking the front page (1.0 = normal)
 # long_read: true sends its stories to the Long reads tab as well
 # include:   optional keywords; only stories mentioning one of them are kept (good for arXiv)
+# exclude:   optional; drop stories whose headline contains any of these
+# url_env:   optional; read the feed address from a GitHub secret (for private feeds)
 # keep_days: optional; keep this source's stories longer than the default (good for rare posters)
 
 [settings]
@@ -202,6 +204,18 @@ kind = "rss"
 url = "https://quillette.com/rss/"
 weight = 1.2
 long_read = true
+
+# Your Quillette emails, turned into a feed by kill-the-newsletter.com. The feed address is private,
+# so it's kept in the GitHub secret QUILLETTE_EMAIL_FEED rather than here.
+[[sources]]
+name = "Quillette (email)"
+section = "letters"
+kind = "rss"
+url_env = "QUILLETTE_EMAIL_FEED"
+weight = 1.3
+long_read = true
+max_items = 20
+exclude = ["confirm", "verification", "forwarding", "verify", "sign in", "log in", "receipt", "invoice"]
 
 [[sources]]
 name = "Aeon"

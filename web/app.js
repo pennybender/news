@@ -53,6 +53,14 @@
   }
 
   const find = (id) => byId.get(id) || saved[id];
+  // the same story from several sources: read whichever version has the most text
+  function fullest(a) {
+    if (!a?.cluster || !data) return a;
+    let best = a;
+    for (const b of data.articles)
+      if (b.cluster === a.cluster && b.has_text && (!best.has_text || b.words > best.words)) best = b;
+    return best;
+  }
   const hoursOld = (iso) => Math.max(0, (Date.now() - new Date(iso)) / 3.6e6);
 
   function frontPage() {
@@ -384,7 +392,7 @@
     }
     const open = e.target.closest("[data-open]");
     if (open) {
-      const a = find(open.dataset.open);
+      const a = fullest(find(open.dataset.open));
       if (a?.has_text) { e.preventDefault(); location.hash = "read-" + a.id; }
       else if (DEMO) e.preventDefault(); // sample links go nowhere useful
       if (a) markRead(a);
