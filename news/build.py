@@ -76,10 +76,13 @@ def merge(cfg, previous, results, full_text=True):
         status.append({"source": src["name"], "ok": err is None, "found": len(stories), "new": added, "error": err})
 
     s = cfg["settings"]
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=s["keep_days"])).isoformat()
-    current = {src["name"] for src in cfg["sources"]}  # a source removed from feeds.toml leaves straight away
-    articles = [a for a in by_id.values() if a["published"] >= cutoff and a["source"] in current]
-    new = [a for a in new if a["published"] >= cutoff]
+    now = datetime.now(timezone.utc)
+    # a source removed from feeds.toml leaves straight away; keep_days can be set per source
+    cutoffs = {src["name"]: (now - timedelta(days=src.get("keep_days", s["keep_days"]))).isoformat()
+               for src in cfg["sources"]}
+    keep = lambda a: a["source"] in cutoffs and a["published"] >= cutoffs[a["source"]]
+    articles = [a for a in by_id.values() if keep(a)]
+    new = [a for a in new if keep(a)]
     assign_clusters(articles, new, s["dedupe_threshold"])
     texts, text_stats = {}, {}
     if full_text:

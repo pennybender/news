@@ -5,6 +5,7 @@
 # weight:    how much this source counts when picking the front page (1.0 = normal)
 # long_read: true sends its stories to the Long reads tab as well
 # include:   optional keywords; only stories mentioning one of them are kept (good for arXiv)
+# keep_days: optional; keep this source's stories longer than the default (good for rare posters)
 
 [settings]
 keep_days = 7             # stories older than this drop off (saved ones stay on your phone)
@@ -97,6 +98,51 @@ section = "money"
 kind = "rss"
 url = "https://www.rba.gov.au/rss/rss-cb-media-releases.xml"
 weight = 1.1
+keep_days = 30
+
+[[sources]]
+name = "RBA Speeches"
+section = "money"
+kind = "rss"
+url = "https://www.rba.gov.au/rss/rss-cb-speeches.xml"
+weight = 1.0
+keep_days = 30
+
+[[sources]]
+name = "RBA Bulletin"
+section = "money"
+kind = "rss"
+url = "https://www.rba.gov.au/rss/rss-cb-bulletin.xml"
+weight = 1.0
+keep_days = 30
+long_read = true
+
+[[sources]]
+name = "RBA Monetary Policy Statement"
+section = "money"
+kind = "rss"
+url = "https://www.rba.gov.au/rss/rss-cb-smp.xml"
+weight = 1.2
+keep_days = 30
+long_read = true
+
+[[sources]]
+name = "RBA Financial Stability Review"
+section = "money"
+kind = "rss"
+url = "https://www.rba.gov.au/rss/rss-cb-fsr.xml"
+weight = 1.0
+keep_days = 30
+long_read = true
+
+[[sources]]
+name = "RBA Research"
+section = "money"
+kind = "rss"
+url = "https://www.rba.gov.au/rss/rss-cb-rdp.xml"
+weight = 0.8
+keep_days = 30
+long_read = true
 
 # Modern economics
 [[sources]]
