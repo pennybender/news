@@ -77,7 +77,8 @@ def merge(cfg, previous, results, full_text=True):
 
     s = cfg["settings"]
     cutoff = (datetime.now(timezone.utc) - timedelta(days=s["keep_days"])).isoformat()
-    articles = [a for a in by_id.values() if a["published"] >= cutoff]
+    current = {src["name"] for src in cfg["sources"]}  # a source removed from feeds.toml leaves straight away
+    articles = [a for a in by_id.values() if a["published"] >= cutoff and a["source"] in current]
     new = [a for a in new if a["published"] >= cutoff]
     assign_clusters(articles, new, s["dedupe_threshold"])
     texts = add_full_text(new, contents, client) if full_text else {}
