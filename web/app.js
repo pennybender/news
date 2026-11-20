@@ -268,7 +268,88 @@
     }
   });
 
-  const VIEWS = { today, river, long: longReads, saved: savedView };
+  // ---------- search ----------
+  let searchIndex = null, searchQuery = "";
+
+  async function loadIndex() {
+    if (searchIndex) return searchIndex;
+    if (DEMO) return (searchIndex = window.NEWS_DEMO_INDEX || {});
+    try {
+      const r = await fetch("data/search.json", { cache: "no-cache" });
+      searchIndex = r.ok ? await r.json() : {};
+    } catch { searchIndex = {}; }
+    return searchIndex;
+  }
+
+  const norm = (s) => String(s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+
+  function runSearch(q) {
+    const terms = norm(q).split(/\s+/).filter((t) => t.length > 1);
+    if (!terms.length) return [];
+    const pool = new Map(data.articles.map((a) => [a.id, a]));
+    for (const a of Object.values(saved)) if (!pool.has(a.id)) pool.set(a.id, a);
+    const results = [];
+    for (const a of pool.values()) {
+      const title = norm(a.title), summary = norm(a.summary);
+      const meta = norm(`${a.source} ${secMap[a.section]?.name || ""} ${a.author || ""}`);
+      const body = searchIndex?.[a.id] ? " " + searchIndex[a.id] : "";
+      let score = 0, inBody = false, ok = true;
+      for (const t of terms) {
+        if (title.includes(t)) score += 6;
+        else if (summary.includes(t)) score += 3;
+        else if (meta.includes(t)) score += 2;
+        else if (body.includes(" " + t)) { score += 1; inBody = true; }
+        else { ok = false; break; }
+      }
+      if (!ok) continue;
+      score += Math.max(0, 2 - hoursOld(a.published) / 72); // slight nudge to recent
+      results.push({ a, score, inBody });
+    }
+    return results.sort((x, y) => y.score - x.score).slice(0, 60);
+  }
+
+  function searchResults() {
+    const box = $view.querySelector(".search-results");
+    if (!box) return;
+    const q = searchQuery.trim();
+    if (!q) {
+      box.innerHTML = `<p class="page-sub">Searches headlines, summaries and the full text of stories in the paper (and your saves).</p>`;
+      return;
+    }
+    const hits = runSearch(q);
+    const enc = encodeURIComponent(q);
+    const elsewhere = `<div class="elsewhere"><div class="kicker">Search elsewhere</div>
+        <a href="https://arxiv.org/search/?query=${enc}&searchtype=all" target="_blank" rel="noopener">arXiv ↗</a>
+        <a href="https://scholar.google.com/scholar?q=${enc}" target="_blank" rel="noopener">Google Scholar ↗</a>
+        <a href="https://duckduckgo.com/?q=${enc}" target="_blank" rel="noopener">Web ↗</a></div>`;
+    box.innerHTML = (hits.length
+      ? `<p class="page-sub">${hits.length} ${hits.length === 1 ? "story" : "stories"}</p>` +
+        hits.map(({ a, inBody }) => story(a, "compact", { showSection: true, summary: true })
+          .replace('<div class="meta-row">', inBody ? '<div class="in-text">Matches in the article text</div><div class="meta-row">' : '<div class="meta-row">')).join("")
+      : `<div class="empty">Nothing in the paper matches “${esc(q)}”.</div>`) + elsewhere;
+  }
+
+  async function searchView() {
+    $view.innerHTML = `<h2 class="page-title">Search</h2>
+      <form class="search-form" role="search">
+        <input type="search" id="q" placeholder="Topic, paper, author, source…" autocomplete="off"
+          autocapitalize="off" spellcheck="false" enterkeyhint="search" value="${esc(searchQuery)}">
+      </form>
+      <div class="search-results"></div>`;
+    const input = $view.querySelector("#q");
+    $view.querySelector(".search-form").addEventListener("submit", (e) => { e.preventDefault(); input.blur(); });
+    let t;
+    input.addEventListener("input", () => {
+      clearTimeout(t);
+      t = setTimeout(() => { searchQuery = input.value; searchResults(); }, 150);
+    });
+    searchResults();
+    if (!searchQuery) input.focus();
+    await loadIndex();
+    searchResults(); // again, now that article text is searchable too
+  }
+
+  const VIEWS = { today, river, long: longReads, search: searchView, saved: savedView };
   let current = "today";
 
   async function show(name, { force = false, keepScroll = false } = {}) {

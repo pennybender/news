@@ -9,6 +9,7 @@ drops old ones, and writes site/ = the app + data/. The state folder is then upd
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -16,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import httpx
+import lxml.html
 
 from .config import ROOT, load_config
 from .ranking import assign_clusters
@@ -117,6 +119,8 @@ def write_site(cfg, articles, status, texts, out, state=None):
         if a.get("has_text") and not (text_dir / f"{a['id']}.json").exists():
             a["has_text"] = False
 
+    write_search_index(text_dir, out / "data" / "search.json")
+
     s = cfg["settings"]
     payload = {
         "generated": now_iso(),
@@ -134,6 +138,24 @@ def write_site(cfg, articles, status, texts, out, state=None):
             shutil.rmtree(state)
         shutil.copytree(out / "data", state)
     return payload
+
+
+WORD = re.compile(r"[a-z0-9][a-z0-9'\-]{2,}")
+
+
+def write_search_index(text_dir, path, max_words=800):
+    """id -> the distinct words in the article's full text, so the app can search inside articles
+    without downloading every one. Loaded only when you open Search."""
+    index = {}
+    for f in text_dir.glob("*.json"):
+        try:
+            html = json.loads(f.read_text())["html"]
+            text = lxml.html.fromstring(f"<div>{html}</div>").text_content().lower()
+        except Exception:
+            continue
+        seen = dict.fromkeys(w.strip("'-") for w in WORD.findall(text))
+        index[f.stem] = " ".join(list(seen)[:max_words])
+    path.write_text(json.dumps(index, ensure_ascii=False, separators=(",", ":")))
 
 
 def main(argv=None):
