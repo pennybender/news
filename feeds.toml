@@ -199,7 +199,7 @@ long_read = true
 name = "Quillette"
 section = "letters"
 kind = "rss"
-url = "https://quillette.com/blog/rss/"
+url = "https://quillette.com/rss/"
 weight = 1.2
 long_read = true
 
