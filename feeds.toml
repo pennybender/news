@@ -46,19 +46,42 @@ colour = "#1d6f8b"
 weight = 0.8
 
 # ---------- Tech ----------
+# Builders, radio and home-lab tinkering rather than industry and security news.
+[[sources]]
+name = "Hackaday"
+section = "tech"
+kind = "rss"
+url = "https://hackaday.com/blog/feed/"
+weight = 1.3
+
+[[sources]]
+name = "RTL-SDR"
+section = "tech"
+kind = "rss"
+url = "https://www.rtl-sdr.com/feed/"
+weight = 1.2
+
+[[sources]]
+name = "Jeff Geerling"
+section = "tech"
+kind = "rss"
+url = "https://www.jeffgeerling.com/blog.xml"
+weight = 1.2
+
+# Hacker News, but only maker / radio / hardware / home-lab stories
 [[sources]]
 name = "Hacker News"
 section = "tech"
 kind = "rss"
-url = "https://hnrss.org/frontpage?points=150"
-weight = 1.0
-
-[[sources]]
-name = "Ars Technica"
-section = "tech"
-kind = "rss"
-url = "https://feeds.arstechnica.com/arstechnica/index"
-weight = 1.0
+url = "https://hnrss.org/frontpage?points=100"
+weight = 0.9
+include = ["radio", "sdr", "antenna", "ham ", "amateur", "moon", "satellite", "aircraft", "ads-b", "doppler",
+           "spectrum", "esp32", "arduino", "raspberry", "fpga", "pcb", "solder", "3d print", "cnc", "laser",
+           "telescope", "gps", "lora", "meshtastic", "homelab", "home lab", "home network", "router", "nas ",
+           "self-host", "oscilloscope", "reverse engineer", "teardown", "hardware", "sensor", "robot", "drone",
+           "rocket", "microcontroller", "circuit", "electronics", "gadget", "diy", "i built", "show hn",
+           "retro", "keyboard", "clock", "ntp", "wifi", "wi-fi", "ethernet", "zigbee", "home assistant"]
+exclude = ["cve", "vulnerability", "exploit", "breach", "postgres", "funding", "layoff", "acquires", "lawsuit"]
 
 # ---------- Science ----------
 [[sources]]

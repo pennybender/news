@@ -12,11 +12,11 @@ from .reader import clean, word_count
 SAMPLES = [
     ("Hacker News", 1.5, "Open-source model runs a full coding agent on a laptop",
      "A walkthrough of running a capable coding assistant locally, with benchmarks on battery life and speed.", 0),
-    ("Ars Technica", 3, "We tested a coding agent that runs entirely on a laptop",
+    ("Hackaday", 3, "We tested a coding agent that runs entirely on a laptop",
      "Local models have crossed a usefulness threshold for everyday programming, with caveats.", 1400),
     ("Hacker News", 6, "Why SQLite keeps winning",
      "The case for the world's most deployed database as the default for small apps.", 0),
-    ("Ars Technica", 9, "Battery makers race to commercialise sodium-ion cells",
+    ("RTL-SDR", 9, "Battery makers race to commercialise sodium-ion cells",
      "Cheaper chemistry could reshape home storage and small EVs within a few years.", 1200),
     ("Quanta", 4, "The mathematicians mapping the edges of chaos",
      "A decades-old question about turbulent systems is finally yielding to new techniques.", 4200),
