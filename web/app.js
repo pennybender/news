@@ -189,6 +189,85 @@
         `<div class="empty">Nothing saved yet.</div>`}`;
   }
 
+  // ---------- reader view ----------
+  const $reader = document.getElementById("reader");
+  const textCache = new Map();
+
+  async function getText(id) {
+    if (DEMO) return window.NEWS_DEMO_TEXTS?.[id] || "";
+    if (!textCache.has(id)) {
+      const r = await fetch(`data/a/${id}.json`);
+      if (!r.ok) throw new Error(`text ${r.status}`);
+      textCache.set(id, (await r.json()).html);
+    }
+    return textCache.get(id);
+  }
+
+  async function openReader(id) {
+    await load();
+    const a = find(id);
+    if (!a) { closeReader(); return; }
+    const sec = secMap[a.section] || {};
+    const on = !!saved[a.id];
+    $reader.innerHTML = `<div class="reader-bar">
+        <button class="rb-back" data-close aria-label="Back">‹ Back</button>
+        <span class="rb-spacer"></span>
+        <button class="save-btn ${on ? "on" : ""}" data-save="${esc(a.id)}" aria-label="Save">${on ? "★" : "☆"}</button>
+        <a class="rb-orig" href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener">Original ↗</a>
+      </div>
+      <article class="reader-body" style="--sec:${sec.colour || "var(--accent)"}">
+        <div class="kicker">${esc(sec.name || "")}</div>
+        <h1>${esc(a.title)}</h1>
+        <div class="reader-meta"><span class="src">${esc(a.source)}</span>${a.author ? ` · ${esc(a.author)}` : ""}
+          · ${ago(a.published)}${a.minutes ? ` · ${a.minutes} min read` : ""}</div>
+        <div class="reader-text"><p class="loading">Loading…</p></div>
+        <a class="reader-end" href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener">Read on ${esc(a.source)} ↗</a>
+      </article>`;
+    $reader.hidden = false;
+    $reader.scrollTop = 0;
+    document.body.classList.add("reading");
+    markRead(a);
+    try {
+      $reader.querySelector(".reader-text").innerHTML = await getText(a.id) ||
+        `<p>${esc(a.summary)}</p>`;
+    } catch {
+      $reader.querySelector(".reader-text").innerHTML = `<p>${esc(a.summary)}</p>
+        <p class="loading">The full text isn't available offline.</p>`;
+    }
+    // links inside the article open in Safari
+    $reader.querySelectorAll(".reader-text a").forEach((l) => { l.target = "_blank"; l.rel = "noopener"; });
+  }
+
+  function closeReader() {
+    $reader.hidden = true;
+    $reader.innerHTML = "";
+    document.body.classList.remove("reading");
+  }
+
+  function routeHash() {
+    const m = location.hash.match(/^#read-([a-f0-9]+)$/);
+    if (m) openReader(m[1]); else if (!$reader.hidden) closeReader();
+  }
+  window.addEventListener("hashchange", routeHash);
+
+  $reader.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]")) {
+      if (history.length > 1 && location.hash) history.back(); else { location.hash = ""; closeReader(); }
+      return;
+    }
+    const save = e.target.closest("[data-save]");
+    if (save) {
+      const a = find(save.dataset.save);
+      if (!a) return;
+      const on = toggleSave(a);
+      save.classList.toggle("on", on);
+      save.textContent = on ? "★" : "☆";
+      document.querySelectorAll(`#view [data-save="${CSS.escape(a.id)}"]`).forEach((b) => {
+        b.classList.toggle("on", on); b.textContent = on ? "★" : "☆";
+      });
+    }
+  });
+
   const VIEWS = { today, river, long: longReads, saved: savedView };
   let current = "today";
 
@@ -224,8 +303,9 @@
     }
     const open = e.target.closest("[data-open]");
     if (open) {
-      if (DEMO) e.preventDefault(); // sample links go nowhere useful
       const a = find(open.dataset.open);
+      if (a?.has_text) { e.preventDefault(); location.hash = "read-" + a.id; }
+      else if (DEMO) e.preventDefault(); // sample links go nowhere useful
       if (a) markRead(a);
       if (current !== "saved") open.closest(".story").classList.add("read");
       return;
@@ -250,5 +330,5 @@
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
 
-  show("today");
+  show("today").then(routeHash);
 })();

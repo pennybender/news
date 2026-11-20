@@ -9,20 +9,25 @@ on:
 
 permissions:
   contents: write   # only used by the keep-alive step
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: news-update
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      - name: Check Cloudflare secrets
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$ACCOUNT" ]; then
+            echo "::error::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID under Settings → Secrets and variables → Actions (see README)."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -32,19 +37,30 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - id: pages
-        uses: actions/configure-pages@v5
-
-      # Carries stories over from the live site, adds new ones, writes site/
-      - name: Fetch feeds and build
-        run: python -m news.build --out site --previous "${{ steps.pages.outputs.base_url }}/data/articles.json"
-
-      - uses: actions/upload-pages-artifact@v3
+      # The previous run's stories and article texts, kept between runs in the Actions cache (not in the repo)
+      - name: Restore previous stories
+        uses: actions/cache/restore@v4
         with:
-          path: site
+          path: state
+          key: news-state-${{ github.run_id }}
+          restore-keys: news-state-
 
-      - id: deploy
-        uses: actions/deploy-pages@v4
+      - name: Fetch feeds and build
+        run: python -m news.build --out site --state state
+
+      - name: Save stories for next run
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: news-state-${{ github.run_id }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          preCommands: wrangler pages project create news --production-branch=main || true
+          command: pages deploy site --project-name=news --branch=main --commit-dirty=true
 
       # GitHub pauses scheduled workflows in repos with no commits for 60 days. This makes a tiny commit
       # every ~45 days so the paper keeps updating.

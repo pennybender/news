@@ -1,9 +1,10 @@
 """Fetch every feed and build the website.
 
-    python -m news.build --out site [--previous URL_OR_PATH_TO_OLD_articles.json]
+    python -m news.build --out site --state state
 
-GitHub Actions runs this on a schedule (see .github/workflows/update.yml). It loads the stories from the
-last published site, adds new ones, dedupes, drops old ones, and writes site/ = the app + data/articles.json.
+GitHub Actions runs this on a schedule (see .github/workflows/update.yml). It loads the previous run's stories
+from the state folder (kept between runs by the Actions cache), adds new ones with their full text, dedupes,
+drops old ones, and writes site/ = the app + data/. The state folder is then updated for the next run.
 """
 import argparse
 import hashlib
@@ -18,6 +19,7 @@ import httpx
 
 from .config import ROOT, load_config
 from .ranking import assign_clusters
+from .reader import add_full_text
 from .sources import HEADERS, fetch_source
 
 
@@ -29,50 +31,45 @@ def story_id(url):
     return hashlib.sha1(url.encode()).hexdigest()[:12]
 
 
-def _client():
+def client():
     return httpx.Client(headers=HEADERS, timeout=20, follow_redirects=True)
 
 
 def _pull(src):
-    with _client() as client:
+    with client() as c:
         try:
-            return src, fetch_source(src, client), None
+            return src, fetch_source(src, c), None
         except Exception as e:  # one bad feed must never stop the others
             return src, [], f"{type(e).__name__}: {e}"[:300]
 
 
-def load_previous(where):
-    if not where:
+def load_state(state):
+    path = Path(state) / "articles.json" if state else None
+    if not path or not path.exists():
+        print("No previous stories — starting fresh.")
         return []
     try:
-        if where.startswith("http"):
-            with _client() as c:
-                r = c.get(where)
-                if r.status_code == 404:
-                    print("No previous site yet — starting fresh.")
-                    return []
-                r.raise_for_status()
-                data = r.json()
-        else:
-            data = json.loads(Path(where).read_text())
-        return data.get("articles", [])
+        return json.loads(path.read_text()).get("articles", [])
     except Exception as e:
-        print(f"Couldn't load previous stories ({e}) — starting fresh.")
+        print(f"Couldn't read previous stories ({e}) — starting fresh.")
         return []
 
 
-def merge(cfg, previous, results):
-    """Add fetched stories to the previous set; returns (articles, status)."""
+def merge(cfg, previous, results, full_text=True):
+    """Add fetched stories to the previous set. Returns (articles, status, texts) where texts maps
+    id -> reader HTML for the new stories."""
     by_id = {a["id"]: a for a in previous}
-    new, status = [], []
+    new, status, contents = [], [], {}
     for src, stories, err in results:
         added = 0
         for s in stories:
             sid = story_id(s["url"])
             if sid in by_id:
                 continue
-            a = {"id": sid, "source": src["name"], "section": src["section"],
-                 "long_read": src["long_read"], "paywalled": src["paywalled"], "fetched": now_iso(), **s}
+            s = dict(s)
+            contents[sid] = s.pop("content", "")
+            a = {"id": sid, "source": src["name"], "section": src["section"], "long_read": src["long_read"],
+                 "paywalled": src["paywalled"], "has_text": False, "fetched": now_iso(), **s}
             by_id[sid] = a
             new.append(a)
             added += 1
@@ -83,16 +80,32 @@ def merge(cfg, previous, results):
     articles = [a for a in by_id.values() if a["published"] >= cutoff]
     new = [a for a in new if a["published"] >= cutoff]
     assign_clusters(articles, new, s["dedupe_threshold"])
+    texts = add_full_text(new, contents, client) if full_text else {}
     articles.sort(key=lambda a: a["published"], reverse=True)
-    return articles, status
+    return articles, status, texts
 
 
-def write_site(cfg, articles, status, out):
+def write_site(cfg, articles, status, texts, out, state=None):
     out = Path(out)
     if out.exists():
         shutil.rmtree(out)
     shutil.copytree(ROOT / "web", out)
-    (out / "data").mkdir(exist_ok=True)
+    text_dir = out / "data" / "a"
+    text_dir.mkdir(parents=True)
+
+    # reader texts: carry over the ones still in the paper, add the new ones
+    keep = {a["id"] for a in articles if a.get("has_text")}
+    old_dir = Path(state) / "a" if state else None
+    if old_dir and old_dir.exists():
+        for f in old_dir.glob("*.json"):
+            if f.stem in keep and f.stem not in texts:
+                shutil.copy2(f, text_dir / f.name)
+    for aid, html in texts.items():
+        (text_dir / f"{aid}.json").write_text(json.dumps({"id": aid, "html": html}, ensure_ascii=False))
+    for a in articles:  # a text that went missing means no reader view, not a broken one
+        if a.get("has_text") and not (text_dir / f"{a['id']}.json").exists():
+            a["has_text"] = False
+
     s = cfg["settings"]
     payload = {
         "generated": now_iso(),
@@ -103,21 +116,28 @@ def write_site(cfg, articles, status, out):
         "articles": articles,
     }
     (out / "data" / "articles.json").write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+    if state:  # the next run starts from exactly what was published
+        state = Path(state)
+        if state.exists():
+            shutil.rmtree(state)
+        shutil.copytree(out / "data", state)
     return payload
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="site")
-    ap.add_argument("--previous", help="URL or path of the last articles.json")
+    ap.add_argument("--state", default="state", help="folder holding the previous run's data")
+    ap.add_argument("--no-full-text", action="store_true")
     args = ap.parse_args(argv)
 
     cfg = load_config()
-    previous = load_previous(args.previous)
+    previous = load_state(args.state)
     with ThreadPoolExecutor(max_workers=8) as pool:
         results = list(pool.map(_pull, cfg["sources"]))
-    articles, status = merge(cfg, previous, results)
-    write_site(cfg, articles, status, args.out)
+    articles, status, texts = merge(cfg, previous, results, full_text=not args.no_full_text)
+    write_site(cfg, articles, status, texts, args.out, args.state)
 
     width = max(len(x["source"]) for x in status)
     for x in status:
@@ -126,7 +146,9 @@ def main(argv=None):
         else:
             print(f"  ✗ {x['source']:<{width}}  {x['error']}")
     ok = sum(x["ok"] for x in status)
-    print(f"\n{ok}/{len(status)} sources OK · {len(articles)} stories in the paper ({len(previous)} carried over)")
+    with_text = sum(1 for a in articles if a.get("has_text"))
+    print(f"\n{ok}/{len(status)} sources OK · {len(articles)} stories ({len(previous)} carried over) · "
+          f"{with_text} readable in the app ({len(texts)} new)")
     return 0 if ok or previous else 1  # only fail the run if nothing at all worked
 
 

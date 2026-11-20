@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from .build import merge, write_site
 from .config import load_config
+from .reader import clean, word_count
 
 # (source, hours ago, title, summary, words)  — all SAMPLE text, not real articles
 SAMPLES = [
@@ -62,14 +63,30 @@ def sample_results(cfg):
     return [(s, grouped.get(s["name"], []), None) for s in cfg["sources"]]
 
 
+SAMPLE_BODY = """<p>This is sample text standing in for the full article, so you can see how the reader view looks.
+In the real app this is the story's own text, taken from its feed or from the article page.</p>
+<h2>A subheading</h2>
+<p>Long paragraphs are set in a comfortable serif at a readable size, with generous line spacing and a narrow
+measure so the eye can track easily on a phone. Links like <a href="https://example.com">this one</a> open in Safari.</p>
+<blockquote>Pull quotes and block quotes get a quiet rule on the left.</blockquote>
+<p>Images in the original article appear at full width, and anything the cleaner doesn't recognise is removed
+so pages stay fast and tidy.</p>"""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="site")
     args = ap.parse_args()
     cfg = load_config()
-    articles, status = merge(cfg, [], sample_results(cfg))
-    write_site(cfg, articles, status, args.out)
-    print(f"Built {args.out}/ with {len(articles)} sample stories.")
+    articles, status, _ = merge(cfg, [], sample_results(cfg), full_text=False)
+    texts = {}
+    for a in articles:
+        if a["words"] and not a["paywalled"]:
+            body = clean(SAMPLE_BODY * 3, a["url"])
+            texts[a["id"]] = body
+            a["has_text"], a["words"] = True, max(a["words"], word_count(body))
+    write_site(cfg, articles, status, texts, args.out)
+    print(f"Built {args.out}/ with {len(articles)} sample stories ({len(texts)} with reader text).")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,7 @@
 feedparser>=6.0
+sgmllib3k>=1.0        # lets feedparser read slightly broken feeds (AIER)
 httpx>=0.27
 beautifulsoup4>=4.12
-sgmllib3k>=1.0   # lets feedparser read slightly broken feeds (AIER)
+readability-lxml>=0.8 # pulls the article body out of a web page, like Safari Reader
+lxml_html_clean>=0.1
+nh3>=0.2              # cleans article HTML down to safe tags

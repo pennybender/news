@@ -151,3 +151,43 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .list .story { border-bottom: 1px solid var(--rule); }
 .status-note { text-align: center; font-size: 12px; color: var(--ink-3); margin: 14px 0 0; }
+
+/* ---------- Reader view ---------- */
+#reader {
+  position: fixed; inset: 0; z-index: 20; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--paper);
+  padding: env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 40px);
+}
+body.reading { overflow: hidden; }
+body.reading .tabbar { display: none; }
+.reader-bar {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 14px;
+  max-width: 680px; margin: 0 auto; padding: 10px 20px;
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+}
+.rb-back { font-size: 16px; font-weight: 600; color: var(--ink); }
+.rb-spacer { flex: 1; }
+.rb-orig { font-size: 14px; color: var(--ink-2); }
+.reader-body { max-width: 640px; margin: 0 auto; padding: 22px 22px 0; }
+.reader-body h1 { font-family: var(--serif); font-size: 32px; line-height: 1.12; margin: 6px 0 10px; letter-spacing: -.01em; }
+.reader-meta { font-size: 13px; color: var(--ink-3); padding-bottom: 16px; border-bottom: 1px solid var(--rule); margin-bottom: 8px; }
+.reader-meta .src { color: var(--ink-2); font-weight: 600; }
+.reader-text { font-family: var(--serif); font-size: 19px; line-height: 1.6; color: var(--ink); overflow-wrap: break-word; }
+.reader-text p { margin: 0 0 1.05em; }
+.reader-text h2, .reader-text h3, .reader-text h4 { font-family: var(--serif); line-height: 1.25; margin: 1.5em 0 .5em; }
+.reader-text h2 { font-size: 23px; } .reader-text h3 { font-size: 20px; }
+.reader-text a { color: var(--sec); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.reader-text img { max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 2px; }
+.reader-text figure { margin: 1.2em 0; }
+.reader-text figcaption { font-family: var(--sans); font-size: 13px; color: var(--ink-3); margin-top: 6px; }
+.reader-text blockquote { margin: 1.2em 0; padding-left: 16px; border-left: 3px solid var(--sec); color: var(--ink-2); font-style: italic; }
+.reader-text pre { font-size: 14px; overflow-x: auto; background: var(--card); padding: 12px; border-radius: 4px; }
+.reader-text table { font-family: var(--sans); font-size: 14px; border-collapse: collapse; display: block; overflow-x: auto; }
+.reader-text td, .reader-text th { border: 1px solid var(--rule); padding: 6px 8px; }
+.reader-text .loading { color: var(--ink-3); font-style: italic; }
+.reader-end {
+  display: block; text-align: center; margin: 28px 0 0; padding: 14px; border-top: 1px solid var(--rule);
+  font-size: 15px; color: var(--ink-2);
+}

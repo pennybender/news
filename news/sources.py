@@ -74,6 +74,7 @@ def fetch_rss(src, client):
             "image": _image(e),
             "words": _word_count(full),
             "published": _iso(e.get("published_parsed") or e.get("updated_parsed")),
+            "content": full or e.get("summary", ""),  # used for the reader view, not stored in the feed list
         })
     return stories
 
