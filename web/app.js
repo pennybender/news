@@ -165,7 +165,7 @@
     const chips = [`<button class="chip ${!riverSection ? "active" : ""}" data-chip="">All</button>`]
       .concat(data.sections.map((s) =>
         `<button class="chip ${riverSection === s.id ? "active" : ""}" data-chip="${esc(s.id)}">${esc(s.name)}</button>`));
-    $view.innerHTML = `<h2 class="page-title">River</h2>
+    $view.innerHTML = `<h2 class="page-title">Latest</h2>
       <p class="page-sub">Everything, newest first.</p>
       <div class="chips">${chips.join("")}</div>
       <div class="list">${items.map((a) => story(a, "compact", { showSection: !riverSection })).join("") ||

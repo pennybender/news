@@ -23,7 +23,7 @@ What you've read and saved is kept on your phone.
 ## Views
 
 - **Today**: the 7 best unread stories (at most 2 per section), then each section's top stories.
-- **River**: everything from the last 7 days, newest first, with section filters.
+- **Latest**: everything from the last 7 days, newest first, with section filters.
 - **Long reads**: essays from long-read sources (Quillette, Aeon, Quanta…) or anything over ~2,000 words.
 - **Saved**: anything you've starred. Saves stay on the phone even after the story drops out of the feed.
 
