@@ -186,6 +186,15 @@ url = "https://www.apricitas.io/feed"
 weight = 1.1
 long_read = true
 
+# Andrew Page's weekly Strawman column (Thursdays). The feed is unlisted but standard WordPress.
+[[sources]]
+name = "Strawman"
+section = "money"
+kind = "rss"
+url = "https://strawman.com/blog/feed/"
+weight = 1.3
+keep_days = 30
+
 # Free-market / Austrian
 # Mises Institute blocks GitHub's servers (403), so it's off. Uncomment if that changes.
 # [[sources]]
