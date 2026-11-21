@@ -8,6 +8,7 @@
 # exclude:   optional; drop stories whose headline contains any of these
 # url_env:   optional; read the feed address from a GitHub secret (for private feeds)
 # fetch_page: optional; always read the full article from its web page (feeds that only send excerpts)
+# digest_marker / digest_min: optional; skip items whose text repeats a phrase like "read now" that many times
 # keep_days: optional; keep this source's stories longer than the default (good for rare posters)
 
 [settings]
@@ -249,7 +250,10 @@ url_env = "QUILLETTE_EMAIL_FEED"
 weight = 1.3
 long_read = true
 max_items = 20
-exclude = ["confirm", "verification", "forwarding", "verify", "sign in", "log in", "receipt", "invoice"]
+exclude = ["confirm", "verification", "forwarding", "verify", "sign in", "log in", "receipt", "invoice",
+           "weekly letter", "quillette weekly", "digest"]
+digest_marker = "read now"   # emails with 2+ of these are link round-ups: they stay in your inbox
+digest_min = 2
 
 [[sources]]
 name = "Aeon"

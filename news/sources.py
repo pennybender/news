@@ -139,4 +139,9 @@ def apply_filters(src, stories):
     skip = [w.lower() for w in src.get("exclude", [])]
     if skip:
         stories = [s for s in stories if not any(w in s["title"].lower() for w in skip)]
+    # digests: emails that are mostly a list of "READ NOW"-style links rather than one article
+    marker = src.get("digest_marker", "").lower()
+    if marker:
+        limit = src.get("digest_min", 2)
+        stories = [s for s in stories if s.get("content", "").lower().count(marker) < limit]
     return stories
