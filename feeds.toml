@@ -318,15 +318,6 @@ keep_days = 21
 
 # Travel told by people who sail there
 [[sources]]
-name = "Sailing Totem"
-section = "sea"
-kind = "rss"
-url = "https://www.sailingtotem.com/feed"
-weight = 1.3
-keep_days = 30
-long_read = true
-
-[[sources]]
 name = "Noonsite"
 section = "sea"
 kind = "rss"
