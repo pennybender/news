@@ -278,13 +278,14 @@ section = "sea"
 kind = "rss"
 url = "https://www.yachtingworld.com/feed"
 weight = 1.0
-
+keep_days = 14
 [[sources]]
 name = "Practical Boat Owner"
 section = "sea"
 kind = "rss"
 url = "https://www.pbo.co.uk/feed"
 weight = 1.0
+keep_days = 14
 
 # Offshore passages, cruising life and seamanship
 [[sources]]
@@ -293,20 +294,14 @@ section = "sea"
 kind = "rss"
 url = "https://www.cruisingworld.com/feed/"
 weight = 1.2
-
+keep_days = 14
 [[sources]]
 name = "Yachting Monthly"
 section = "sea"
 kind = "rss"
 url = "https://www.yachtingmonthly.com/feed"
 weight = 1.2
-
-[[sources]]
-name = "Ocean Navigator"
-section = "sea"
-kind = "rss"
-url = "https://www.oceannavigator.com/feed/"
-weight = 1.2
+keep_days = 14
 
 # Solo non-stop round-the-world race in classic boats, no modern tech
 [[sources]]
