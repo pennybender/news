@@ -279,6 +279,7 @@ kind = "rss"
 url = "https://www.yachtingworld.com/feed"
 weight = 1.0
 keep_days = 14
+exclude = ["regatta", "america's cup", "sailgp", "ocean race", "vendée", "vendee", "imoca", "grand prix", "championship", "race week", "racing", "rolex", "fastnet", "hobart", "j/70", "olympic"]
 [[sources]]
 name = "Practical Boat Owner"
 section = "sea"
@@ -286,8 +287,9 @@ kind = "rss"
 url = "https://www.pbo.co.uk/feed"
 weight = 1.0
 keep_days = 14
+exclude = ["regatta", "america's cup", "sailgp", "ocean race", "vendée", "vendee", "imoca", "grand prix", "championship", "race week", "racing", "rolex", "fastnet", "hobart", "j/70", "olympic"]
 
-# Offshore passages, cruising life and seamanship
+# Offshore passages, cruising life and seamanship (racing news filtered out)
 [[sources]]
 name = "Cruising World"
 section = "sea"
@@ -295,6 +297,7 @@ kind = "rss"
 url = "https://www.cruisingworld.com/feed/"
 weight = 1.2
 keep_days = 14
+exclude = ["regatta", "america's cup", "sailgp", "ocean race", "vendée", "vendee", "imoca", "grand prix", "championship", "race week", "racing", "rolex", "fastnet", "hobart", "j/70", "olympic"]
 [[sources]]
 name = "Yachting Monthly"
 section = "sea"
@@ -302,6 +305,7 @@ kind = "rss"
 url = "https://www.yachtingmonthly.com/feed"
 weight = 1.2
 keep_days = 14
+exclude = ["regatta", "america's cup", "sailgp", "ocean race", "vendée", "vendee", "imoca", "grand prix", "championship", "race week", "racing", "rolex", "fastnet", "hobart", "j/70", "olympic"]
 
 # Solo non-stop round-the-world race in classic boats, no modern tech
 [[sources]]
@@ -312,11 +316,3 @@ url = "https://goldengloberace.com/feed/"
 weight = 1.2
 keep_days = 21
 
-# Australian sailing news
-[[sources]]
-name = "Mysailing"
-section = "sea"
-kind = "rss"
-url = "https://www.mysailing.com.au/feed/"
-weight = 0.8
-fetch_page = true
