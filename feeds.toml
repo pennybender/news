@@ -45,7 +45,7 @@ weight = 0.9
 id = "sea"
 name = "Sea"
 colour = "#1d6f8b"
-weight = 0.8
+weight = 1.0
 
 # ---------- Tech ----------
 # Builders, radio and home-lab tinkering rather than industry and security news.
@@ -285,3 +285,43 @@ section = "sea"
 kind = "rss"
 url = "https://www.pbo.co.uk/feed"
 weight = 1.0
+
+# Offshore passages, cruising life and seamanship
+[[sources]]
+name = "Cruising World"
+section = "sea"
+kind = "rss"
+url = "https://www.cruisingworld.com/feed/"
+weight = 1.2
+
+[[sources]]
+name = "Yachting Monthly"
+section = "sea"
+kind = "rss"
+url = "https://www.yachtingmonthly.com/feed"
+weight = 1.2
+
+[[sources]]
+name = "Ocean Navigator"
+section = "sea"
+kind = "rss"
+url = "https://www.oceannavigator.com/feed/"
+weight = 1.2
+
+# Solo non-stop round-the-world race in classic boats, no modern tech
+[[sources]]
+name = "Golden Globe Race"
+section = "sea"
+kind = "rss"
+url = "https://goldengloberace.com/feed/"
+weight = 1.2
+keep_days = 21
+
+# Australian sailing news
+[[sources]]
+name = "Mysailing"
+section = "sea"
+kind = "rss"
+url = "https://www.mysailing.com.au/feed/"
+weight = 0.8
+fetch_page = true
